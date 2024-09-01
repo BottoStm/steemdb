@@ -1,5 +1,5 @@
 {
-    "mongodb_url": "mongodb://192.168.1.254:27017/",
+    "mongodb_url": "mongodb://10.10.100.12:27017/",
     "steemd_url": "http://10.10.100.12:8080",
     "last_block_env": 88227333,
     "batch_size": 25
