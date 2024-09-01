@@ -495,8 +495,17 @@ if __name__ == '__main__':
         props = rpc.get_dynamic_global_properties()
         block_number = props['last_irreversible_block_num']
 
+        # Adjust the loop to process blocks until only 4 blocks behind
         while (block_number - last_block) > 0:
-            end_block = min(last_block + batch_size, block_number)
+            blocks_behind = block_number - last_block
+
+            # Adjust batch size if the script is more than 4 blocks behind
+            if blocks_behind > 4:
+                adjusted_batch_size = min(batch_size, blocks_behind)
+            else:
+                adjusted_batch_size = 1  # Process one block at a time if within 4 blocks
+
+            end_block = min(last_block + adjusted_batch_size, block_number)
             blocks = fetch_blocks_in_batch(last_block + 1, end_block)
             
             for block_response in blocks:
@@ -580,6 +589,7 @@ flush_time2: [%f, %s%%]'
                     sys.stdout.flush()
                     flush_time2 = time.perf_counter() - flush_start_time2
 
+
                     total_time = time.perf_counter() - total_start_time
                     print(log_tag + '[TEST Time] Total time: [%f], \
 get_block time: [%f, %s%%], \
@@ -608,6 +618,7 @@ flush_time2: [%f, %s%%]'
                     break
                 else:
                     print(log_tag + "Retrying to fetch block #" + str(last_block + 1))
-                    time.sleep(3)  # Retry after 3 seconds
+                    time.sleep(1)  # Retry after 3 seconds
 
-        time.sleep(block_interval)
+        # Reduce the sleep interval to catch up more frequently
+        time.sleep(1)
